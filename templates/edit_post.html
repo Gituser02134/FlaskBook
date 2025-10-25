@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2>Edit Post</h2>
+
+<form method="POST">
+    <div class="form-group">
+        <label for="content">Update your post:</label><br>
+        <textarea id="content" name="content" rows="4" cols="50" required>{{ post.content }}</textarea>
+    </div>
+
+    <button type="submit" class="btn">Save Changes</button>
+    <a href="{{ url_for('index') }}" class="btn" style="background-color: #6c757d;">Cancel</a>
+</form>
+
+{% endblock %}

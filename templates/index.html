@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2>Welcome, {{ user.username }} 👋</h2>
+
+{% if posts %}
+    {% for post in posts %}
+        <div class="post">
+            <p><strong>{{ post.author.username }}</strong> — {{ post.date_posted.strftime('%b %d, %Y %I:%M %p') }}</p>
+            <p>{{ post.content }}</p>
+            {% if post.image %}
+                <img src="{{ url_for('static', filename=post.image.split('static/')[-1]) }}" alt="Post Image">
+            {% endif %}
+
+            {% if post.author == current_user %}
+                <div style="margin-top: 10px;">
+                    <a class="btn" href="{{ url_for('edit_post', post_id=post.id) }}">Edit</a>
+                    <a class="btn" style="background-color: #d9534f;" href="{{ url_for('delete_post', post_id=post.id) }}">Delete</a>
+                </div>
+            {% endif %}
+        </div>
+    {% endfor %}
+{% else %}
+    <p>No posts yet. <a href="{{ url_for('create_post') }}">Create one now!</a></p>
+{% endif %}
+
+{% endblock %}
