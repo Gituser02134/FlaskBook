@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>{{ help_request.title }}</h2>
+<p class="text-muted">
+    📚 <strong>{{ help_request.subject }}</strong> — posted by <strong>{{ help_request.author.username }}</strong> on {{ help_request.date_posted.strftime('%Y-%m-%d') }}
+</p>
+
+<p>{{ help_request.description }}</p>
+
+<hr>
+
+<h4>💬 Replies</h4>
+
+{% if help_request.replies %}
+    <div class="list-group mb-3">
+        {% for reply in help_request.replies %}
+            <div class="list-group-item">
+                <p>{{ reply.content }}</p>
+                <small class="text-muted">
+                    — {{ reply.author.username }} on {{ reply.date_posted.strftime('%Y-%m-%d %H:%M') }}
+                </small>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p class="text-muted">No replies yet. Be the first to help!</p>
+{% endif %}
+
+{% if current_user.is_authenticated %}
+    <form method="POST" action="{{ url_for('add_reply', help_id=help_request.id) }}">
+        <div class="mb-3">
+            <label for="reply" class="form-label">Add a reply:</label>
+            <textarea id="reply" name="reply" class="form-control" rows="3" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Reply</button>
+    </form>
+{% else %}
+    <p><a href="{{ url_for('login') }}">Log in</a> to reply.</p>
+{% endif %}
+
+{% endblock %}

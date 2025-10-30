@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="mb-4">📅 Your Task Schedule</h2>
+
+<a href="{{ url_for('create_task') }}" class="btn btn-primary mb-3">+ Add Task</a>
+
+<table class="table table-bordered table-hover">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Category</th>
+            <th>Due Date</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for task in tasks %}
+        <tr class="{% if task.is_completed %}table-success{% endif %}">
+            <td>{{ task.title }}</td>
+            <td>{{ task.category }}</td>
+            <td>{{ task.due_date.strftime('%Y-%m-%d') if task.due_date else 'N/A' }}</td>
+            <td>{{ '✅ Completed' if task.is_completed else '⏳ Pending' }}</td>
+            <td>
+                {% if not task.is_completed %}
+                <a href="{{ url_for('complete_task', task_id=task.id) }}" class="btn btn-sm btn-success">Mark Done</a>
+                {% endif %}
+                <a href="{{ url_for('delete_task', task_id=task.id) }}" class="btn btn-sm btn-danger">Delete</a>
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" class="text-center text-muted">No tasks yet. Add one!</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

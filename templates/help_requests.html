@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>💬 Help Requests</h2>
+    <a href="{{ url_for('create_help_request') }}" class="btn btn-primary">➕ New Request</a>
+</div>
+
+{% if help_requests %}
+    <div class="list-group">
+        {% for req in help_requests %}
+            <a href="{{ url_for('help_detail', help_id=req.id) }}" class="list-group-item list-group-item-action">
+                <h5 class="mb-1">{{ req.title }}</h5>
+                <small class="text-muted">
+                    📚 {{ req.subject }} — Posted by {{ req.author.username }} on {{ req.date_posted.strftime('%Y-%m-%d') }}
+                </small>
+                <p class="mt-2">{{ req.description[:100] }}{% if req.description|length > 100 %}...{% endif %}</p>
+            </a>
+        {% endfor %}
+    </div>
+{% else %}
+    <p class="text-muted">No help requests yet. Be the first to ask a question!</p>
+{% endif %}
+
+{% endblock %}

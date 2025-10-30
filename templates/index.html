@@ -1,27 +1,112 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Flaskbook Feed</h2>
 
-<h2>Welcome, {{ user.username }} 👋</h2>
-
-{% if posts %}
-    {% for post in posts %}
-        <div class="post">
-            <p><strong>{{ post.author.username }}</strong> — {{ post.date_posted.strftime('%b %d, %Y %I:%M %p') }}</p>
-            <p>{{ post.content }}</p>
-            {% if post.image %}
-                <img src="{{ url_for('static', filename=post.image.split('static/')[-1]) }}" alt="Post Image">
-            {% endif %}
-
-            {% if post.author == current_user %}
-                <div style="margin-top: 10px;">
-                    <a class="btn" href="{{ url_for('edit_post', post_id=post.id) }}">Edit</a>
-                    <a class="btn" style="background-color: #d9534f;" href="{{ url_for('delete_post', post_id=post.id) }}">Delete</a>
-                </div>
-            {% endif %}
+    <!-- 🔍 Search + Filter + Sort -->
+    <form method="GET" class="row g-2 mb-4">
+        <div class="col-md-4">
+            <input type="text" name="search" class="form-control"
+                   placeholder="Search posts or users..."
+                   value="{{ search_query }}">
         </div>
-    {% endfor %}
-{% else %}
-    <p>No posts yet. <a href="{{ url_for('create_post') }}">Create one now!</a></p>
-{% endif %}
 
+        <div class="col-md-3">
+            <select name="user" class="form-select">
+                <option value="">All Users</option>
+                {% for u in all_users %}
+                    <option value="{{ u.username }}" {% if u.username == filter_user %}selected{% endif %}>
+                        {{ u.username }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <select name="sort" class="form-select">
+                <option value="newest" {% if sort_order =='newest' %}selected{% endif %}>Newest First</option>
+                <option value="oldest" {% if sort_order =='oldest' %}selected{% endif %}>Oldest First</option>
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">Apply</button>
+        </div>
+    </form>
+
+    {% if search_query or filter_user %}
+        <p class="text-muted">
+            Filtering results for:
+            {% if search_query %}<strong>"{{ search_query }}"</strong>{% endif %}
+            {% if filter_user %} by <strong>{{ filter_user }}</strong>{% endif %}
+        </p>
+    {% endif %}
+
+    <!-- 📝 Posts List -->
+    {% if posts.items %}
+        {% for post in posts.items %}
+        <div class="card mb-4 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">{{ post.author.username }}</h5>
+                <p class="card-text">{{ post.content }}</p>
+
+                {% if post.image %}
+                    <img src="{{ url_for('static', filename=post.image.split('static/')[-1]) }}" class="img-fluid rounded mt-2" alt="Post image">
+                {% endif %}
+
+                <p class="text-muted small mt-2">
+                    Posted on {{ post.date_posted.strftime('%Y-%m-%d %H:%M') }}
+                </p>
+
+                {% if current_user.is_authenticated and post.author == current_user %}
+                    <a href="{{ url_for('edit_post', post_id=post.id) }}" class="btn btn-sm btn-outline-primary">Edit</a>
+                    <a href="{{ url_for('delete_post', post_id=post.id) }}" class="btn btn-sm btn-outline-danger">Delete</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p class="text-muted">No posts found.</p>
+    {% endif %}
+
+    <!-- 📄 Pagination -->
+    {% if posts.pages > 1 %}
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            {% if posts.has_prev %}
+                <li class="page-item">
+                    <a class="page-link"
+                       href="{{ url_for('index', page=posts.prev_num, search=search_query, user=filter_user, sort=sort_order) }}">Previous</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled"><span class="page-link">Previous</span></li>
+            {% endif %}
+
+            {% for page_num in posts.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+                {% if page_num %}
+                    {% if posts.page == page_num %}
+                        <li class="page-item active"><span class="page-link">{{ page_num }}</span></li>
+                    {% else %}
+                        <li class="page-item">
+                            <a class="page-link"
+                               href="{{ url_for('index', page=page_num, search=search_query, user=filter_user, sort=sort_order) }}">{{ page_num }}</a>
+                        </li>
+                    {% endif %}
+                {% else %}
+                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                {% endif %}
+            {% endfor %}
+
+            {% if posts.has_next %}
+                <li class="page-item">
+                    <a class="page-link"
+                       href="{{ url_for('index', page=posts.next_num, search=search_query, user=filter_user, sort=sort_order) }}">Next</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled"><span class="page-link">Next</span></li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
 {% endblock %}
