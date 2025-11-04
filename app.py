@@ -16,6 +16,19 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/flaskbo
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 
+# ----------------------------------------
+# ✅ File Upload Config & Validation
+# ----------------------------------------
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'pdf', 'docx', 'ppt', 'pptx'}
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB
+
+def allowed_file(filename):
+    """Check if file type is allowed."""
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+# ----------------------------------------
+# ✅ Initialize Database & Login Manager
+# ----------------------------------------
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
@@ -36,7 +49,7 @@ class User(UserMixin, db.Model):
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.Text, nullable=False)
-    image = db.Column(db.String(200))
+    file = db.Column(db.String(200))  # renamed from image → file (for general uploads)
     date_posted = db.Column(db.DateTime, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
@@ -52,7 +65,7 @@ class Task(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
 
-# ✅ NEW: Help Request and Reply models
+# ✅ Help Request and Reply models
 class HelpRequest(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
@@ -69,7 +82,6 @@ class HelpReply(db.Model):
     date_posted = db.Column(db.DateTime, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     request_id = db.Column(db.Integer, db.ForeignKey('help_request.id'), nullable=False)
-
 
 # ----------------------------------------
 # ✅ Flask-Login Loader
@@ -180,26 +192,30 @@ def logout():
     return redirect(url_for('login'))
 
 # ----------------------------------------
-# ✅ Post Routes
+# ✅ Post Routes (Now supports PDFs, DOCX, PPT)
 # ----------------------------------------
 @app.route('/create', methods=['GET', 'POST'])
 @login_required
 def create_post():
     if request.method == 'POST':
         content = request.form['content'].strip()
-        image = request.files.get('image')
+        file = request.files.get('file')
 
-        if not content and not image:
-            flash('Post cannot be empty. Add text or an image.', 'warning')
+        if not content and not file:
+            flash('Post cannot be empty. Add text or a file.', 'warning')
             return redirect(url_for('create_post'))
 
-        image_path = None
-        if image and image.filename != '':
-            image_filename = image.filename
-            image_path = os.path.join(app.config['UPLOAD_FOLDER'], image_filename)
-            image.save(image_path)
+        file_path = None
+        if file and file.filename != '':
+            if allowed_file(file.filename):
+                filename = file.filename
+                file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                file.save(file_path)
+            else:
+                flash('⚠️ Invalid file type! Only images, PDFs, DOCX, and PPT are allowed.', 'danger')
+                return redirect(url_for('create_post'))
 
-        new_post = Post(content=content, image=image_path, author=current_user)
+        new_post = Post(content=content, file=file_path, author=current_user)
         db.session.add(new_post)
         db.session.commit()
         flash('📝 Post created successfully!', 'success')
@@ -298,7 +314,7 @@ def delete_task(task_id):
     return redirect(url_for('tasks'))
 
 # ----------------------------------------
-# ✅ Help Request Routes (New Feature)
+# ✅ Help Request Routes
 # ----------------------------------------
 @app.route('/help')
 @login_required

@@ -1,20 +1,47 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<h2>Create a New Post</h2>
+<div class="card shadow p-4">
+    <h2 class="mb-4">📝 Create a New Post</h2>
 
-<form method="POST" enctype="multipart/form-data">
-    <div class="form-group">
-        <label for="content">What's on your mind?</label><br>
-        <textarea id="content" name="content" rows="4" cols="50" required></textarea>
-    </div>
+    <form method="POST" enctype="multipart/form-data">
+        <!-- Post Content -->
+        <div class="form-group mb-3">
+            <label for="content" class="form-label">What's on your mind?</label>
+            <textarea
+                id="content"
+                name="content"
+                rows="4"
+                class="form-control"
+                placeholder="Share an update, ask a question, or post a note..."
+                required></textarea>
+        </div>
 
-    <div class="form-group">
-        <label for="image">Upload Image (optional):</label><br>
-        <input type="file" id="image" name="image" accept="image/*">
-    </div>
+        <!-- File Upload -->
+        <div class="form-group mb-3">
+            <label for="file" class="form-label">Upload File (optional):</label>
+            <input
+                type="file"
+                id="file"
+                name="file"
+                class="form-control"
+                accept=".png,.jpg,.jpeg,.gif,.pdf,.docx,.ppt,.pptx">
 
-    <button type="submit" class="btn">Post</button>
-</form>
+            <small class="form-text text-muted">
+                Supported types: <strong>Images (PNG, JPG, GIF)</strong>,
+                <strong>PDFs</strong>, <strong>Word (.DOCX)</strong>,
+                <strong>PowerPoint (.PPT/.PPTX)</strong><br>
+                Max file size: <strong>16 MB</strong>
+            </small>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="d-grid mt-4">
+            <button type="submit" class="btn btn-primary btn-lg">
+                📤 Post
+            </button>
+        </div>
+    </form>
+</div>
 
 {% endblock %}
