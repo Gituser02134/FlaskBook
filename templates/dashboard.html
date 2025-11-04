@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container mt-4">
+    <h2 class="mb-4">📊 Dashboard</h2>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card text-center shadow-sm p-3">
+                <h5>Total Tasks</h5>
+                <p class="display-6">{{ total_tasks }}</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center shadow-sm p-3">
+                <h5>✅ Completed</h5>
+                <p class="display-6 text-success">{{ completed_tasks }}</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center shadow-sm p-3">
+                <h5>🕓 Pending</h5>
+                <p class="display-6 text-danger">{{ pending_tasks }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart Section -->
+    <div class="mb-5">
+        <canvas
+            id="taskChart"
+            width="400"
+            height="150"
+            data-completed="{{ completed_tasks }}"
+            data-pending="{{ pending_tasks }}">
+        </canvas>
+    </div>
+
+    <!-- Upcoming Tasks -->
+    <h4>📅 Upcoming Tasks</h4>
+    {% if upcoming_tasks %}
+        <ul class="list-group mb-4">
+            {% for task in upcoming_tasks %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>
+                        <strong>{{ task.title }}</strong> — {{ task.category or 'General' }}
+                    </span>
+                    <span class="badge bg-info text-dark">
+                        Due: {{ task.due_date.strftime('%Y-%m-%d') }}
+                    </span>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="text-muted">No upcoming tasks 🎉</p>
+    {% endif %}
+
+    <!-- Recent Posts -->
+    <h4>📝 Your Recent Posts</h4>
+    {% if recent_posts %}
+        {% for post in recent_posts %}
+            <div class="card mb-3 shadow-sm">
+                <div class="card-body">
+                    <p class="card-text">{{ post.content }}</p>
+                    {% if post.file %}
+                        <img src="{{ url_for('static', filename=post.file.split('static/')[-1]) }}"
+                             class="img-fluid rounded mt-2" style="max-height: 200px;" alt="Post image">
+                    {% endif %}
+                    <p class="text-muted small mt-2">
+                        Posted on {{ post.date_posted.strftime('%Y-%m-%d %H:%M') }}
+                    </p>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p class="text-muted">You haven't posted anything yet.</p>
+    {% endif %}
+</div>
+
+<!-- ✅ Chart.js Script -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const chartCanvas = document.getElementById("taskChart");
+    const completed = parseInt(chartCanvas.dataset.completed || 0);
+    const pending = parseInt(chartCanvas.dataset.pending || 0);
+
+    new Chart(chartCanvas, {
+        type: "doughnut",
+        data: {
+            labels: ["Completed", "Pending"],
+            datasets: [{
+                data: [completed, pending],
+                backgroundColor: ["#4CAF50", "#E57373"],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: "bottom" }
+            }
+        }
+    });
+});
+</script>
+
+{% endblock %}
+

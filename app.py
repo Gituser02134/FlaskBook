@@ -4,6 +4,7 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
 from datetime import datetime
+from sqlalchemy import func
 
 # ----------------------------------------
 # ✅ Initialize Flask app
@@ -45,14 +46,12 @@ class User(UserMixin, db.Model):
     help_requests = db.relationship('HelpRequest', backref='user', lazy=True)
     replies = db.relationship('HelpReply', backref='user', lazy=True)
 
-
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.Text, nullable=False)
     file = db.Column(db.String(200))  # renamed from image → file (for general uploads)
     date_posted = db.Column(db.DateTime, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-
 
 # ✅ Task model (Assignments, Projects, Exams)
 class Task(db.Model):
@@ -64,7 +63,6 @@ class Task(db.Model):
     is_completed = db.Column(db.Boolean, default=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
-
 # ✅ Help Request and Reply models
 class HelpRequest(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -74,7 +72,6 @@ class HelpRequest(db.Model):
     date_posted = db.Column(db.DateTime, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     replies = db.relationship('HelpReply', backref='request', cascade="all, delete", lazy=True)
-
 
 class HelpReply(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -162,7 +159,6 @@ def register():
 
     return render_template('register.html')
 
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -183,7 +179,6 @@ def login():
             return redirect(url_for('login'))
 
     return render_template('login.html')
-
 
 @app.route('/logout')
 @login_required
@@ -223,7 +218,6 @@ def create_post():
 
     return render_template('create_post.html')
 
-
 @app.route('/edit/<int:post_id>', methods=['GET', 'POST'])
 @login_required
 def edit_post(post_id):
@@ -238,7 +232,6 @@ def edit_post(post_id):
         return redirect(url_for('index'))
 
     return render_template('edit_post.html', post=post)
-
 
 @app.route('/delete/<int:post_id>')
 @login_required
@@ -260,7 +253,6 @@ def delete_post(post_id):
 def tasks():
     tasks = Task.query.filter_by(user_id=current_user.id).order_by(Task.due_date.asc()).all()
     return render_template('tasks.html', tasks=tasks)
-
 
 @app.route('/tasks/create', methods=['GET', 'POST'])
 @login_required
@@ -285,7 +277,6 @@ def create_task():
 
     return render_template('create_task.html')
 
-
 @app.route('/tasks/complete/<int:task_id>')
 @login_required
 def complete_task(task_id):
@@ -298,7 +289,6 @@ def complete_task(task_id):
     db.session.commit()
     flash('✅ Task marked as completed!', 'success')
     return redirect(url_for('tasks'))
-
 
 @app.route('/tasks/delete/<int:task_id>')
 @login_required
@@ -322,7 +312,6 @@ def help_requests():
     requests = HelpRequest.query.order_by(HelpRequest.date_posted.desc()).all()
     return render_template('help_requests.html', requests=requests)
 
-
 @app.route('/help/create', methods=['GET', 'POST'])
 @login_required
 def create_help_request():
@@ -344,7 +333,6 @@ def create_help_request():
 
     return render_template('create_help_request.html')
 
-
 @app.route('/help/<int:request_id>', methods=['GET', 'POST'])
 @login_required
 def help_detail(request_id):
@@ -365,14 +353,47 @@ def help_detail(request_id):
     return render_template('help_detail.html', help_request=help_request, replies=replies)
 
 # ----------------------------------------
-# ✅ Test + Run
+# ✅ Dashboard Route (Summary View)
 # ----------------------------------------
-@app.route('/test')
-def test():
-    return "<h1>Flask is working!</h1>"
+@app.route('/dashboard')
+@login_required
+def dashboard():
+    # Recent 5 posts by current user
+    recent_posts = (
+        Post.query.filter_by(user_id=current_user.id)
+        .order_by(Post.date_posted.desc())
+        .limit(5)
+        .all()
+    )
 
+    # Upcoming 5 tasks (not completed)
+    upcoming_tasks = (
+        Task.query.filter_by(user_id=current_user.id, is_completed=False)
+        .order_by(Task.due_date.asc())
+        .limit(5)
+        .all()
+    )
 
+    # Task stats
+    total_tasks = Task.query.filter_by(user_id=current_user.id).count()
+    completed_tasks = Task.query.filter_by(user_id=current_user.id, is_completed=True).count()
+    pending_tasks = total_tasks - completed_tasks
+
+    return render_template(
+        'dashboard.html',
+        recent_posts=recent_posts,
+        upcoming_tasks=upcoming_tasks,
+        completed_tasks=completed_tasks,
+        pending_tasks=pending_tasks,
+        total_tasks=total_tasks
+    )
+
+# ----------------------------------------
+# ✅ Run Flask app
+# ----------------------------------------
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
     app.run(debug=True)
+
+
