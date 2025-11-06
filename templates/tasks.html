@@ -1,36 +1,83 @@
 {% extends 'base.html' %}
 {% block content %}
-<h2 class="mb-4">📅 Your Task Schedule</h2>
+<div class="container mt-4">
+    <h2 class="mb-4">📅 Your Task Schedule</h2>
 
-<a href="{{ url_for('create_task') }}" class="btn btn-primary mb-3">+ Add Task</a>
+    <a href="{{ url_for('create_task') }}" class="btn btn-primary mb-3">+ Add Task</a>
 
-<table class="table table-bordered table-hover">
-    <thead>
-        <tr>
-            <th>Title</th>
-            <th>Category</th>
-            <th>Due Date</th>
-            <th>Status</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for task in tasks %}
-        <tr class="{% if task.is_completed %}table-success{% endif %}">
-            <td>{{ task.title }}</td>
-            <td>{{ task.category }}</td>
-            <td>{{ task.due_date.strftime('%Y-%m-%d') if task.due_date else 'N/A' }}</td>
-            <td>{{ '✅ Completed' if task.is_completed else '⏳ Pending' }}</td>
-            <td>
-                {% if not task.is_completed %}
-                <a href="{{ url_for('complete_task', task_id=task.id) }}" class="btn btn-sm btn-success">Mark Done</a>
-                {% endif %}
-                <a href="{{ url_for('delete_task', task_id=task.id) }}" class="btn btn-sm btn-danger">Delete</a>
-            </td>
-        </tr>
-        {% else %}
-        <tr><td colspan="5" class="text-center text-muted">No tasks yet. Add one!</td></tr>
-        {% endfor %}
-    </tbody>
-</table>
+    <!-- 🔍 Search & Filter Bar -->
+    <form method="GET" class="row g-2 mb-4">
+        <!-- Search -->
+        <div class="col-md-4">
+            <input type="text" name="search" class="form-control"
+                   placeholder="Search by task title or keyword..."
+                   value="{{ search_query }}">
+        </div>
+
+        <!-- Filter by Category -->
+        <div class="col-md-3">
+            <select name="category" class="form-select">
+                <option value="">All Categories</option>
+                {% for c in categories %}
+                    <option value="{{ c }}" {% if c == filter_category %}selected{% endif %}>{{ c }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Filter by Status -->
+        <div class="col-md-3">
+            <select name="status" class="form-select">
+                <option value="">All Statuses</option>
+                <option value="pending" {% if filter_status =='pending' %}selected{% endif %}>⏳ Pending</option>
+                <option value="completed" {% if filter_status =='completed' %}selected{% endif %}>✅ Completed</option>
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">Apply</button>
+        </div>
+    </form>
+
+    <!-- Active Filters -->
+    {% if search_query or filter_category or filter_status %}
+        <p class="text-muted mb-3">
+            Showing results
+            {% if search_query %} for "<strong>{{ search_query }}</strong>"{% endif %}
+            {% if filter_category %} in <strong>{{ filter_category }}</strong>{% endif %}
+            {% if filter_status %} ({{ filter_status|capitalize }}){% endif %}
+        </p>
+    {% endif %}
+
+    <!-- 🧾 Task Table -->
+    <table class="table table-bordered table-hover align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Due Date</th>
+                <th>Status</th>
+                <th class="text-center">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for task in tasks %}
+            <tr class="{% if task.is_completed %}table-success{% endif %}">
+                <td>{{ task.title }}</td>
+                <td>{{ task.category or 'General' }}</td>
+                <td>{{ task.due_date.strftime('%Y-%m-%d') if task.due_date else 'N/A' }}</td>
+                <td>{{ '✅ Completed' if task.is_completed else '⏳ Pending' }}</td>
+                <td class="text-center">
+                    {% if not task.is_completed %}
+                        <a href="{{ url_for('complete_task', task_id=task.id) }}" class="btn btn-sm btn-success">Mark Done</a>
+                    {% endif %}
+                    <a href="{{ url_for('delete_task', task_id=task.id) }}" class="btn btn-sm btn-danger">Delete</a>
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5" class="text-center text-muted">No tasks found. Add one!</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 {% endblock %}
+
