@@ -2,62 +2,57 @@
 {% block content %}
 
 <div class="container mt-4">
-    <h2 class="mb-4">📊 Dashboard</h2>
+    <h2 class="mb-4 text-center">📊 Dashboard</h2>
 
     <!-- Summary Cards -->
-    <div class="row mb-4">
-        <div class="col-md-4">
+    <div class="row row-cols-1 row-cols-md-3 g-3 mb-4">
+        <div class="col">
             <div class="card text-center shadow-sm p-3">
                 <h5>Total Tasks</h5>
-                <p class="display-6">{{ total_tasks }}</p>
+                <p class="display-6 fw-bold">{{ total_tasks }}</p>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col">
             <div class="card text-center shadow-sm p-3">
                 <h5>✅ Completed</h5>
-                <p class="display-6 text-success">{{ completed_tasks }}</p>
+                <p class="display-6 text-success fw-bold">{{ completed_tasks }}</p>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col">
             <div class="card text-center shadow-sm p-3">
                 <h5>🕓 Pending</h5>
-                <p class="display-6 text-danger">{{ pending_tasks }}</p>
+                <p class="display-6 text-danger fw-bold">{{ pending_tasks }}</p>
             </div>
         </div>
     </div>
 
     <!-- Chart Section -->
-    <div class="mb-5">
-        <canvas
-            id="taskChart"
-            width="400"
-            height="150"
-            data-completed="{{ completed_tasks }}"
-            data-pending="{{ pending_tasks }}">
+    <div class="card p-3 shadow-sm mb-5">
+        <canvas id="taskChart"
+                data-completed="{{ completed_tasks }}"
+                data-pending="{{ pending_tasks }}">
         </canvas>
     </div>
 
     <!-- Upcoming Tasks -->
-    <h4>📅 Upcoming Tasks</h4>
+    <h4 class="mb-3">📅 Upcoming Tasks</h4>
     {% if upcoming_tasks %}
         <ul class="list-group mb-4">
             {% for task in upcoming_tasks %}
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <span>
+                <li class="list-group-item d-flex flex-column flex-sm-row justify-content-between align-items-start">
+                    <div class="mb-2 mb-sm-0">
                         <strong>{{ task.title }}</strong> — {{ task.category or 'General' }}
-                    </span>
-                    <span class="badge bg-info text-dark">
-                        Due: {{ task.due_date.strftime('%Y-%m-%d') }}
-                    </span>
+                    </div>
+                    <span class="badge bg-info text-dark">Due: {{ task.due_date.strftime('%Y-%m-%d') }}</span>
                 </li>
             {% endfor %}
         </ul>
     {% else %}
-        <p class="text-muted">No upcoming tasks 🎉</p>
+        <p class="text-muted text-center">No upcoming tasks 🎉</p>
     {% endif %}
 
     <!-- Recent Posts -->
-    <h4>📝 Your Recent Posts</h4>
+    <h4 class="mb-3">📝 Your Recent Posts</h4>
     {% if recent_posts %}
         {% for post in recent_posts %}
             <div class="card mb-3 shadow-sm">
@@ -67,18 +62,15 @@
                         <img src="{{ url_for('static', filename=post.file.split('static/')[-1]) }}"
                              class="img-fluid rounded mt-2" style="max-height: 200px;" alt="Post image">
                     {% endif %}
-                    <p class="text-muted small mt-2">
-                        Posted on {{ post.date_posted.strftime('%Y-%m-%d %H:%M') }}
-                    </p>
+                    <p class="text-muted small mt-2">Posted on {{ post.date_posted.strftime('%Y-%m-%d %H:%M') }}</p>
                 </div>
             </div>
         {% endfor %}
     {% else %}
-        <p class="text-muted">You haven't posted anything yet.</p>
+        <p class="text-muted text-center">You haven't posted anything yet.</p>
     {% endif %}
 </div>
 
-<!-- ✅ Chart.js Script -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
@@ -93,18 +85,16 @@ document.addEventListener("DOMContentLoaded", function () {
             datasets: [{
                 data: [completed, pending],
                 backgroundColor: ["#4CAF50", "#E57373"],
-                borderWidth: 1
             }]
         },
         options: {
             responsive: true,
-            plugins: {
-                legend: { position: "bottom" }
-            }
+            plugins: { legend: { position: "bottom" } }
         }
     });
 });
 </script>
 
 {% endblock %}
+
 

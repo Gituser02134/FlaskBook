@@ -1,47 +1,40 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<div class="card shadow p-4">
-    <h2 class="mb-4">📝 Create a New Post</h2>
+<div class="container mt-4" style="max-width: 600px;">
+  <div class="card shadow-sm p-4 border-0">
+    <h3 class="mb-4 text-center">📝 Create a New Post</h3>
 
     <form method="POST" enctype="multipart/form-data">
-        <!-- Post Content -->
-        <div class="form-group mb-3">
-            <label for="content" class="form-label">What's on your mind?</label>
-            <textarea
-                id="content"
-                name="content"
-                rows="4"
-                class="form-control"
-                placeholder="Share an update, ask a question, or post a note..."
-                required></textarea>
-        </div>
+      <div class="mb-3">
+        <label for="content" class="form-label">What's on your mind?</label>
+        <textarea
+          id="content"
+          name="content"
+          rows="4"
+          class="form-control form-control-sm"
+          placeholder="Share an update, ask a question, or post a note..."
+          required></textarea>
+      </div>
 
-        <!-- File Upload -->
-        <div class="form-group mb-3">
-            <label for="file" class="form-label">Upload File (optional):</label>
-            <input
-                type="file"
-                id="file"
-                name="file"
-                class="form-control"
-                accept=".png,.jpg,.jpeg,.gif,.pdf,.docx,.ppt,.pptx">
+      <div class="mb-3">
+        <label for="file" class="form-label">Upload File (optional):</label>
+        <input
+          type="file"
+          id="file"
+          name="file"
+          class="form-control form-control-sm"
+          accept=".png,.jpg,.jpeg,.gif,.pdf,.docx,.ppt,.pptx">
+        <small class="form-text text-muted">
+          Supported: Images, PDFs, DOCX, PPT (Max 16 MB)
+        </small>
+      </div>
 
-            <small class="form-text text-muted">
-                Supported types: <strong>Images (PNG, JPG, GIF)</strong>,
-                <strong>PDFs</strong>, <strong>Word (.DOCX)</strong>,
-                <strong>PowerPoint (.PPT/.PPTX)</strong><br>
-                Max file size: <strong>16 MB</strong>
-            </small>
-        </div>
-
-        <!-- Submit Button -->
-        <div class="d-grid mt-4">
-            <button type="submit" class="btn btn-primary btn-lg">
-                📤 Post
-            </button>
-        </div>
+      <div class="d-grid mt-3">
+        <button type="submit" class="btn btn-primary btn-sm">📤 Post</button>
+      </div>
     </form>
+  </div>
 </div>
 
 {% endblock %}

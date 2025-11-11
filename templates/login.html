@@ -1,44 +1,46 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<div class="container mt-4">
-    <h2 class="mb-3 text-center">Login to FlaskBook</h2>
+<div class="container mt-5" style="max-width: 400px;">
+  <div class="card shadow-sm p-4 border-0">
+    <h3 class="text-center mb-4">🔑 Login to FlaskBook</h3>
 
-    <form method="POST" class="mx-auto" style="max-width: 400px;">
-        <div class="mb-3">
-            <label for="username" class="form-label">Username:</label>
-            <input
-                type="text"
-                id="username"
-                name="username"
-                class="form-control"
-                placeholder="Enter your username"
-                autocomplete="username"
-                required
-                autofocus>
-        </div>
+    <form method="POST">
+      <div class="mb-3">
+        <label for="username" class="form-label">Username:</label>
+        <input
+          type="text"
+          id="username"
+          name="username"
+          class="form-control form-control-sm"
+          placeholder="Enter your username"
+          autocomplete="username"
+          required
+          autofocus>
+      </div>
 
-        <div class="mb-3">
-            <label for="password" class="form-label">Password:</label>
-            <input
-                type="password"
-                id="password"
-                name="password"
-                class="form-control"
-                placeholder="Enter your password"
-                autocomplete="current-password"
-                minlength="6"
-                required>
-            <small class="text-muted">Must be at least 6 characters long.</small>
-        </div>
+      <div class="mb-3">
+        <label for="password" class="form-label">Password:</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          class="form-control form-control-sm"
+          placeholder="Enter your password"
+          autocomplete="current-password"
+          minlength="6"
+          required>
+        <small class="text-muted">Must be at least 6 characters long.</small>
+      </div>
 
-        <button type="submit" class="btn btn-primary w-100">Login</button>
+      <button type="submit" class="btn btn-primary btn-sm w-100">Login</button>
     </form>
+  </div>
 
-    <p class="text-center mt-3">
-        Don’t have an account?
-        <a href="{{ url_for('register') }}">Register here</a>
-    </p>
+  <p class="text-center mt-3 small">
+    Don’t have an account?
+    <a href="{{ url_for('register') }}">Register here</a>
+  </p>
 </div>
 
 {% endblock %}

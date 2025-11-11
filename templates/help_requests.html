@@ -2,24 +2,21 @@
 {% block content %}
 
 <div class="container mt-4">
-
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2>💬 Help Requests</h2>
-        <a href="{{ url_for('create_help_request') }}" class="btn btn-primary">➕ New Request</a>
+    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center mb-3 text-center text-sm-start">
+        <h2 class="mb-2 mb-sm-0">💬 Help Requests</h2>
+        <a href="{{ url_for('create_help_request') }}" class="btn btn-primary btn-sm">➕ New Request</a>
     </div>
 
     <!-- 🔍 Search & Filter -->
     <form method="GET" class="row g-2 mb-4">
-        <!-- Search by keyword -->
-        <div class="col-md-6">
-            <input type="text" name="search" class="form-control"
+        <div class="col-12 col-md-6">
+            <input type="text" name="search" class="form-control form-control-sm"
                    placeholder="Search help requests or topics..."
                    value="{{ search_query }}">
         </div>
 
-        <!-- Filter by Subject -->
-        <div class="col-md-4">
-            <select name="subject" class="form-select">
+        <div class="col-6 col-md-4">
+            <select name="subject" class="form-select form-select-sm">
                 <option value="">All Subjects</option>
                 {% for s in subjects %}
                     <option value="{{ s }}" {% if s == filter_subject %}selected{% endif %}>{{ s }}</option>
@@ -27,39 +24,36 @@
             </select>
         </div>
 
-        <div class="col-md-2">
-            <button type="submit" class="btn btn-primary w-100">Apply</button>
+        <div class="col-6 col-md-2">
+            <button type="submit" class="btn btn-primary btn-sm w-100">Apply</button>
         </div>
     </form>
 
-    <!-- Active Filter Info -->
     {% if search_query or filter_subject %}
-        <p class="text-muted mb-3">
-            Showing results
-            {% if search_query %} for "<strong>{{ search_query }}</strong>"{% endif %}
+        <p class="text-muted small mb-3">
+            Showing results{% if search_query %} for "<strong>{{ search_query }}</strong>"{% endif %}
             {% if filter_subject %} in <strong>{{ filter_subject }}</strong>{% endif %}
         </p>
     {% endif %}
 
-    <!-- 💬 Help Requests List -->
     {% if help_requests %}
         <div class="list-group shadow-sm">
             {% for req in help_requests %}
                 <a href="{{ url_for('help_detail', request_id=req.id) }}" class="list-group-item list-group-item-action">
                     <h5 class="mb-1">{{ req.title }}</h5>
-                    <small class="text-muted">
-                        📚 {{ req.subject or 'General' }} — Posted by {{ req.user.username }} on
-                        {{ req.date_posted.strftime('%Y-%m-%d') }}
+                    <small class="text-muted d-block">
+                        📚 {{ req.subject or 'General' }} — {{ req.user.username }} on {{ req.date_posted.strftime('%Y-%m-%d') }}
                     </small>
-                    <p class="mt-2 mb-0 text-secondary">
+                    <p class="mt-2 mb-0 text-secondary small">
                         {{ req.description[:120] }}{% if req.description|length > 120 %}...{% endif %}
                     </p>
                 </a>
             {% endfor %}
         </div>
     {% else %}
-        <p class="text-muted mt-4">No help requests found. Be the first to ask a question!</p>
+        <p class="text-muted mt-4 text-center">No help requests found. Be the first to ask a question!</p>
     {% endif %}
 </div>
 
 {% endblock %}
+

@@ -1,20 +1,18 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="container mt-4">
-    <h2 class="mb-4">FlaskBook Feed</h2>
+    <h2 class="mb-4 text-center text-md-start">📖 FlaskBook Feed</h2>
 
-    <!-- 🔍 Search + Filter + Sort + Subject -->
+    <!-- 🔍 Search + Filter + Sort -->
     <form method="GET" class="row g-2 mb-4">
-        <!-- Search -->
-        <div class="col-md-3">
-            <input type="text" name="search" class="form-control"
+        <div class="col-12 col-md-3">
+            <input type="text" name="search" class="form-control form-control-sm"
                    placeholder="Search posts or users..."
                    value="{{ search_query }}">
         </div>
 
-        <!-- Filter by User -->
-        <div class="col-md-3">
-            <select name="user" class="form-select">
+        <div class="col-6 col-md-3">
+            <select name="user" class="form-select form-select-sm">
                 <option value="">All Users</option>
                 {% for u in all_users %}
                     <option value="{{ u.username }}" {% if u.username == filter_user %}selected{% endif %}>
@@ -24,62 +22,53 @@
             </select>
         </div>
 
-        <!-- NEW: Filter by Subject / Category -->
-        <div class="col-md-3">
-            <input type="text" name="subject" class="form-control"
-                   placeholder="Filter by subject (e.g. Biology, Calculus...)"
+        <div class="col-6 col-md-3">
+            <input type="text" name="subject" class="form-control form-control-sm"
+                   placeholder="Filter by subject (e.g. Biology...)"
                    value="{{ filter_subject }}">
         </div>
 
-        <!-- Sort -->
-        <div class="col-md-2">
-            <select name="sort" class="form-select">
+        <div class="col-6 col-md-2">
+            <select name="sort" class="form-select form-select-sm">
                 <option value="newest" {% if sort_order =='newest' %}selected{% endif %}>Newest First</option>
                 <option value="oldest" {% if sort_order =='oldest' %}selected{% endif %}>Oldest First</option>
             </select>
         </div>
 
-        <div class="col-md-1">
-            <button type="submit" class="btn btn-primary w-100">Apply</button>
+        <div class="col-6 col-md-1 d-grid">
+            <button type="submit" class="btn btn-primary btn-sm">Apply</button>
         </div>
     </form>
 
     {% if search_query or filter_user or filter_subject %}
-        <p class="text-muted">
-            Showing results for:
-            {% if search_query %}<strong>"{{ search_query }}"</strong>{% endif %}
+        <p class="text-muted small mb-3">
+            Showing results
+            {% if search_query %} for "<strong>{{ search_query }}</strong>"{% endif %}
             {% if filter_user %} by <strong>{{ filter_user }}</strong>{% endif %}
             {% if filter_subject %} under <strong>{{ filter_subject }}</strong>{% endif %}
         </p>
     {% endif %}
 
-    <!-- 📝 Posts List -->
     {% if posts.items %}
         {% for post in posts.items %}
-        <div class="card mb-4 shadow-sm">
+        <div class="card mb-3 shadow-sm">
             <div class="card-body">
                 <h5 class="card-title">{{ post.author.username }}</h5>
                 <p class="card-text">{{ post.content }}</p>
 
                 {% if post.file %}
                     {% set file_ext = post.file.split('.')[-1].lower() %}
-
-                    <!-- 🖼️ Image -->
                     {% if file_ext in ['png', 'jpg', 'jpeg', 'gif'] %}
                         <img src="{{ url_for('static', filename=post.file.split('static/')[-1]) }}"
-                             class="img-fluid rounded mt-2"
-                             alt="Post image">
-
-                    <!-- 📄 Document -->
+                             class="img-fluid rounded mt-2" alt="Post image">
                     {% elif file_ext in ['pdf', 'docx', 'ppt', 'pptx'] %}
-                        <div class="alert alert-secondary mt-3 d-flex justify-content-between align-items-center">
-                            <div>
-                                <i class="bi bi-file-earmark-text"></i>
-                                <strong>Attached File:</strong>
+                        <div class="alert alert-secondary mt-3 d-flex flex-column flex-sm-row justify-content-between align-items-sm-center">
+                            <div class="mb-2 mb-sm-0">
+                                <i class="bi bi-file-earmark-text"></i> <strong>Attached File:</strong>
                                 {{ post.file.split('/')[-1] }}
                             </div>
                             <a href="{{ url_for('static', filename=post.file.split('static/')[-1]) }}"
-                               class="btn btn-sm btn-outline-primary" target="_blank">
+                               class="btn btn-sm btn-outline-primary w-100 w-sm-auto mt-2 mt-sm-0" target="_blank">
                                 View / Download
                             </a>
                         </div>
@@ -91,41 +80,35 @@
                 </p>
 
                 {% if current_user.is_authenticated and post.author == current_user %}
-                    <a href="{{ url_for('edit_post', post_id=post.id) }}" class="btn btn-sm btn-outline-primary">Edit</a>
-                    <a href="{{ url_for('delete_post', post_id=post.id) }}" class="btn btn-sm btn-outline-danger">Delete</a>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a href="{{ url_for('edit_post', post_id=post.id) }}" class="btn btn-sm btn-outline-primary">Edit</a>
+                        <a href="{{ url_for('delete_post', post_id=post.id) }}" class="btn btn-sm btn-outline-danger">Delete</a>
+                    </div>
                 {% endif %}
             </div>
         </div>
         {% endfor %}
     {% else %}
-        <p class="text-muted">No posts found.</p>
+        <p class="text-muted text-center">No posts found.</p>
     {% endif %}
 
-    <!-- 📄 Pagination -->
+    <!-- Pagination -->
     {% if posts.pages > 1 %}
-    <nav aria-label="Page navigation">
-        <ul class="pagination justify-content-center">
+    <nav>
+        <ul class="pagination justify-content-center flex-wrap">
             {% if posts.has_prev %}
                 <li class="page-item">
                     <a class="page-link"
                        href="{{ url_for('index', page=posts.prev_num, search=search_query, user=filter_user, subject=filter_subject, sort=sort_order) }}">Previous</a>
                 </li>
-            {% else %}
-                <li class="page-item disabled"><span class="page-link">Previous</span></li>
             {% endif %}
 
             {% for page_num in posts.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
                 {% if page_num %}
-                    {% if posts.page == page_num %}
-                        <li class="page-item active"><span class="page-link">{{ page_num }}</span></li>
-                    {% else %}
-                        <li class="page-item">
-                            <a class="page-link"
-                               href="{{ url_for('index', page=page_num, search=search_query, user=filter_user, subject=filter_subject, sort=sort_order) }}">{{ page_num }}</a>
-                        </li>
-                    {% endif %}
-                {% else %}
-                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                    <li class="page-item {% if posts.page == page_num %}active{% endif %}">
+                        <a class="page-link"
+                           href="{{ url_for('index', page=page_num, search=search_query, user=filter_user, subject=filter_subject, sort=sort_order) }}">{{ page_num }}</a>
+                    </li>
                 {% endif %}
             {% endfor %}
 
@@ -134,8 +117,6 @@
                     <a class="page-link"
                        href="{{ url_for('index', page=posts.next_num, search=search_query, user=filter_user, subject=filter_subject, sort=sort_order) }}">Next</a>
                 </li>
-            {% else %}
-                <li class="page-item disabled"><span class="page-link">Next</span></li>
             {% endif %}
         </ul>
     </nav>

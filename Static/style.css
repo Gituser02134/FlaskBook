@@ -1,51 +1,173 @@
-/* Global UI Enhancements */
+/* 🌐 Global Layout */
 body {
   background-color: #f5f6fa;
   font-family: 'Inter', sans-serif;
   color: #333;
+  margin: 0;
+  padding-top: 80px; /* Account for fixed navbar */
+  -webkit-font-smoothing: antialiased;
 }
 
+/* NAVBAR */
 .navbar {
+  background-color: #ffffff !important;
+  border-bottom: 1px solid #e5e7eb;
   transition: all 0.3s ease;
 }
 
-.navbar .nav-link {
-  color: #555;
-  font-weight: 500;
-  transition: 0.2s;
+.navbar .navbar-brand {
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: #2563eb !important;
 }
 
-.navbar .nav-link:hover {
-  color: #2563eb;
+.navbar .nav-link {
+  color: #444;
+  font-weight: 500;
+  margin-right: 10px;
+  transition: color 0.2s ease;
+}
+
+.navbar .nav-link:hover,
+.navbar .nav-link.active {
+  color: #2563eb !important;
 }
 
 .navbar .btn-outline-danger {
-  border-radius: 20px;
+  border-radius: 25px;
+  font-size: 0.9rem;
 }
 
-/* Page Layout */
+.navbar-toggler {
+  border: none;
+  background-color: transparent;
+}
+
+.navbar-toggler:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+/* RESPONSIVE NAVBAR FIX */
+@media (max-width: 768px) {
+  .navbar-nav {
+    text-align: center;
+    padding-top: 10px;
+  }
+  .navbar .btn-outline-danger {
+    width: 100%;
+    margin-top: 10px;
+  }
+}
+
+/* CONTAINERS */
 .container {
-  max-width: 900px;
+  max-width: 950px;
+  padding-left: 1rem;
+  padding-right: 1rem;
 }
 
-/* Cards */
+/* 🧩 CARDS (Post / Dashboard / Help Requests) */
 .card {
   border: none;
   border-radius: 16px;
+  background: #ffffff;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+}
+
+/* Feed post text */
+.card-text {
+  font-size: 0.96rem;
+  line-height: 1.6;
+}
+
+/* 🧠 DASHBOARD CARDS */
+.dashboard-card {
+  border-radius: 14px;
+  background: linear-gradient(145deg, #ffffff, #f1f5f9);
+  box-shadow: 0 3px 6px rgba(0,0,0,0.05);
+  padding: 20px;
+  text-align: center;
+  transition: all 0.2s ease-in-out;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+}
+
+/* 📅 TABLES (Tasks Page) */
+.table {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
+  font-size: 0.95rem;
+}
+
+.table th {
+  background-color: #f1f5f9;
+  color: #333;
+  font-weight: 600;
+  text-align: center;
+}
+
+.table td {
+  vertical-align: middle;
+}
+
+.table tr:hover {
+  background-color: #f9fafb;
+}
+
+/* 📲 Make tables scroll on mobile */
+.table-responsive {
+  border-radius: 10px;
+}
+
+@media (max-width: 768px) {
+  .table th, .table td {
+    font-size: 0.85rem;
+  }
+}
+
+/* 🧾 FORMS */
+form {
+  background-color: #ffffff;
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.05);
+}
+
+.form-control,
+.form-select {
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
 }
 
 /* Buttons */
+.btn {
+  border-radius: 10px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
 .btn-primary {
   background-color: #2563eb;
   border-color: #2563eb;
-  border-radius: 10px;
 }
 
 .btn-primary:hover {
@@ -53,31 +175,48 @@ body {
   border-color: #1d4ed8;
 }
 
-/* Alerts */
+.btn-success {
+  background-color: #16a34a;
+  border-color: #16a34a;
+}
+
+.btn-success:hover {
+  background-color: #15803d;
+}
+
+.btn-danger {
+  background-color: #dc2626;
+  border-color: #dc2626;
+}
+
+.btn-danger:hover {
+  background-color: #b91c1c;
+}
+
+/* 🗨️ ALERTS (Bootstrap flash messages) */
 .alert {
   border-radius: 10px;
+  font-size: 0.95rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
 }
 
-/* Footer */
+/* IMAGES */
+img.img-fluid {
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+/* 🧭 FOOTER */
 footer {
   background: #fff;
+  color: #6b7280;
+  font-size: 0.9rem;
+  border-top: 1px solid #e5e7eb;
+  margin-top: 60px;
+  padding: 15px 0;
 }
 
-/* Table Styling for Tasks */
-.table {
-  background: #fff;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
-}
-
-.table th {
-  background-color: #f1f5f9;
-  color: #333;
-  font-weight: 600;
-}
-
-/* Floating Action Button */
+/* 🧿 FLOATING ACTION BUTTON */
 .fab {
   position: fixed;
   bottom: 30px;
@@ -92,7 +231,7 @@ footer {
   justify-content: center;
   font-size: 22px;
   box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-  transition: 0.3s;
+  transition: 0.3s ease;
   text-decoration: none;
 }
 
@@ -100,3 +239,37 @@ footer {
   background-color: #1d4ed8;
   transform: scale(1.1);
 }
+
+/* 🔄 Responsive Adjustments */
+@media (max-width: 576px) {
+  h2, h4 {
+    font-size: 1.25rem;
+  }
+
+  .btn,
+  .form-control,
+  .form-select {
+    font-size: 0.9rem;
+  }
+
+  form {
+    padding: 15px;
+  }
+
+  .card {
+    border-radius: 12px;
+  }
+
+  .dashboard-card {
+    margin-bottom: 15px;
+  }
+
+  .navbar-brand {
+    font-size: 1.1rem;
+  }
+
+  body {
+    padding-top: 70px;
+  }
+}
+

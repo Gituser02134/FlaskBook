@@ -1,26 +1,33 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h2>➕ Create a Help Request</h2>
+<div class="card shadow-sm p-4 mt-3 mx-auto" style="max-width: 600px;">
+    <h2 class="mb-4 text-center">➕ Create a Help Request</h2>
 
-<form method="POST">
-    <div class="mb-3">
-        <label for="title" class="form-label">Title:</label>
-        <input type="text" id="title" name="title" class="form-control" placeholder="e.g. Help with my Physics project" required>
-    </div>
+    <form method="POST">
+        <div class="mb-3">
+            <label for="title" class="form-label">Title:</label>
+            <input type="text" id="title" name="title" class="form-control form-control-sm"
+                   placeholder="e.g. Help with my Physics project" required>
+        </div>
 
-    <div class="mb-3">
-        <label for="subject" class="form-label">Subject:</label>
-        <input type="text" id="subject" name="subject" class="form-control" placeholder="Physics, Math, History..." required>
-    </div>
+        <div class="mb-3">
+            <label for="subject" class="form-label">Subject:</label>
+            <input type="text" id="subject" name="subject" class="form-control form-control-sm"
+                   placeholder="Physics, Math, History..." required>
+        </div>
 
-    <div class="mb-3">
-        <label for="description" class="form-label">Description:</label>
-        <textarea id="description" name="description" class="form-control" rows="5" placeholder="Describe what you need help with..." required></textarea>
-    </div>
+        <div class="mb-3">
+            <label for="description" class="form-label">Description:</label>
+            <textarea id="description" name="description" class="form-control form-control-sm" rows="5"
+                      placeholder="Describe what you need help with..." required></textarea>
+        </div>
 
-    <button type="submit" class="btn btn-success">Post Request</button>
-    <a href="{{ url_for('help_requests') }}" class="btn btn-secondary">Cancel</a>
-</form>
+        <div class="d-grid gap-2 mt-4">
+            <button type="submit" class="btn btn-success btn-sm">Post Request</button>
+            <a href="{{ url_for('help_requests') }}" class="btn btn-secondary btn-sm">Cancel</a>
+        </div>
+    </form>
+</div>
 
 {% endblock %}

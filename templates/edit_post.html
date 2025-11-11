@@ -1,16 +1,20 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<h2>Edit Post</h2>
+<div class="card shadow-sm p-4 mt-3 mx-auto" style="max-width: 600px;">
+    <h2 class="mb-3 text-center">✏️ Edit Post</h2>
 
-<form method="POST">
-    <div class="form-group">
-        <label for="content">Update your post:</label><br>
-        <textarea id="content" name="content" rows="4" cols="50" required>{{ post.content }}</textarea>
-    </div>
+    <form method="POST">
+        <div class="mb-3">
+            <label for="content" class="form-label">Update your post:</label>
+            <textarea id="content" name="content" rows="5" class="form-control form-control-sm" required>{{ post.content }}</textarea>
+        </div>
 
-    <button type="submit" class="btn">Save Changes</button>
-    <a href="{{ url_for('index') }}" class="btn" style="background-color: #6c757d;">Cancel</a>
-</form>
+        <div class="d-grid gap-2 mt-4">
+            <button type="submit" class="btn btn-primary btn-sm">💾 Save Changes</button>
+            <a href="{{ url_for('index') }}" class="btn btn-secondary btn-sm">Cancel</a>
+        </div>
+    </form>
+</div>
 
 {% endblock %}
