@@ -319,6 +319,15 @@ def create_help_request():
     return render_template('create_help_request.html')
 
 # ----------------------------------------
+# ✅ ⭐ NEW — Help Request Detail Route (Fixes BuildError)
+# ----------------------------------------
+@app.route('/help/<int:help_id>')
+@login_required
+def help_detail(help_id):
+    help_request = HelpRequest.query.get_or_404(help_id)
+    return render_template('help_detail.html', help_request=help_request)
+
+# ----------------------------------------
 # ✅ Dashboard
 # ----------------------------------------
 @app.route('/dashboard')
@@ -344,5 +353,3 @@ if __name__ == '__main__':
     with app.app_context():
         db.create_all()
     app.run(debug=True)
-
-

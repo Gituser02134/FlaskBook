@@ -39,7 +39,8 @@
     {% if help_requests %}
         <div class="list-group shadow-sm">
             {% for req in help_requests %}
-                <a href="{{ url_for('help_detail', request_id=req.id) }}" class="list-group-item list-group-item-action">
+                <!-- ✅ FIXED: changed request_id → help_id -->
+                <a href="{{ url_for('help_detail', help_id=req.id) }}" class="list-group-item list-group-item-action">
                     <h5 class="mb-1">{{ req.title }}</h5>
                     <small class="text-muted d-block">
                         📚 {{ req.subject or 'General' }} — {{ req.user.username }} on {{ req.date_posted.strftime('%Y-%m-%d') }}
@@ -56,4 +57,5 @@
 </div>
 
 {% endblock %}
+
 
