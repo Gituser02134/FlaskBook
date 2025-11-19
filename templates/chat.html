@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <h3 class="mb-3">💬 Flaskbook Chat</h3>
+
+  <div class="row">
+    <div class="col-md-3 mb-3">
+      <h6>Online Users</h6>
+      <ul class="list-group" id="userList">
+        {% for user in users %}
+        <li class="list-group-item user-item" data-room="{{ current_user.id }}-{{ user.id }}">
+          {{ user.username }}
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="col-md-9">
+      <div class="card">
+        <div class="card-body" id="chatBox" style="height: 400px; overflow-y: auto;">
+          <p class="text-muted">Select a user to start chatting.</p>
+        </div>
+        <div class="card-footer">
+          <form id="chatForm" class="d-flex">
+            <input type="text" id="messageInput" class="form-control me-2" placeholder="Type a message..." />
+            <button class="btn btn-primary">Send</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
+<script>
+  const socket = io();
+  let currentRoom = null;
+
+  // Join selected chat room
+  document.querySelectorAll('.user-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const room = item.dataset.room;
+      if (currentRoom) socket.emit('leave', { room: currentRoom });
+      currentRoom = room;
+      document.getElementById('chatBox').innerHTML = '';
+      socket.emit('join', { room });
+    });
+  });
+
+  // Handle sending messages
+  document.getElementById('chatForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const msg = document.getElementById('messageInput').value;
+    if (msg && currentRoom) {
+      socket.emit('message', { room: currentRoom, msg });
+      document.getElementById('messageInput').value = '';
+    }
+  });
+
+  // Display messages
+  socket.on('message', data => {
+    const box = document.getElementById('chatBox');
+    const msgEl = document.createElement('p');
+    msgEl.innerHTML = `<strong>${data.username || 'System'}:</strong> ${data.msg}`;
+    box.appendChild(msgEl);
+    box.scrollTop = box.scrollHeight;
+  });
+</script>
+{% endblock %}

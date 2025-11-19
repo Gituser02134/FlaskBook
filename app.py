@@ -24,6 +24,11 @@ db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
+# ✅ Enable SocketIO
+from flask_socketio import SocketIO, emit, join_room, leave_room
+socketio = SocketIO(app, cors_allowed_origins="*")
+
+
 # ----------------------------------------
 # Allowed file types
 # ----------------------------------------
@@ -178,6 +183,45 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('login'))
+
+# ----------------------------------------
+# Chat Route
+# ----------------------------------------
+@app.route('/chat')
+@login_required
+def chat():
+    return render_template('chat.html', username=current_user.username)
+
+# SocketIO events
+@socketio.on('send_message')
+def handle_send_message(data):
+    message = data['message']
+    username = data['username']
+    emit('receive_message', {'username': username, 'message': message}, broadcast=True)
+
+    @app.route('/chat')
+    @login_required
+    def chat():
+        return render_template('chat.html', username=current_user.username)
+
+
+# ----------------------------------------
+# ✅ SocketIO Events for Real-Time Chat
+# ----------------------------------------
+@socketio.on('connect')
+def handle_connect():
+    print(f"🔌 {current_user.username if current_user.is_authenticated else 'Guest'} connected")
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    print(f"❌ {current_user.username if current_user.is_authenticated else 'Guest'} disconnected")
+
+@socketio.on('send_message')
+def handle_send_message(data):
+    username = data.get('username', 'Anonymous')
+    message = data.get('message', '')
+    if message.strip():
+        emit('receive_message', {'username': username, 'message': message}, broadcast=True)
 
 
 # ----------------------------------------
@@ -429,4 +473,5 @@ def dashboard():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    app.run(debug=True)
+    socketio.run(app, debug=True)
+
