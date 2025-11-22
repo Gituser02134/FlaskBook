@@ -89,6 +89,14 @@ class HelpReply(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     request_id = db.Column(db.Integer, db.ForeignKey('help_request.id'), nullable=False)
 
+    class Blog(db.Model):
+        id = db.Column(db.Integer, primary_key=True)
+        title = db.Column(db.String(200), nullable=False)
+        content = db.Column(db.Text, nullable=False)
+        date_posted = db.Column(db.DateTime, default=datetime.utcnow)
+        author_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+        author = db.relationship('User', backref='blogs', lazy=True)
+
 
 @login_manager.user_loader
 def load_user(user_id):
