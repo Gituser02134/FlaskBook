@@ -51,6 +51,7 @@ class User(UserMixin, db.Model):
     tasks = db.relationship('Task', backref='user', lazy=True)
     help_requests = db.relationship('HelpRequest', backref='user', lazy=True)
     replies = db.relationship('HelpReply', backref='user', lazy=True)
+    blogs = db.relationship('Blog', backref='author', lazy=True)  # ✅ Blog relationship
 
 
 class Post(db.Model):
@@ -89,13 +90,14 @@ class HelpReply(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     request_id = db.Column(db.Integer, db.ForeignKey('help_request.id'), nullable=False)
 
-    class Blog(db.Model):
-        id = db.Column(db.Integer, primary_key=True)
-        title = db.Column(db.String(200), nullable=False)
-        content = db.Column(db.Text, nullable=False)
-        date_posted = db.Column(db.DateTime, default=datetime.utcnow)
-        author_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-        author = db.relationship('User', backref='blogs', lazy=True)
+
+# ✅ Blog model must be declared OUTSIDE other models (same indentation level)
+class Blog(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(200), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    date_posted = db.Column(db.DateTime, default=datetime.utcnow)
+    author_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
 
 @login_manager.user_loader
@@ -451,6 +453,44 @@ def add_reply(help_id):
 
     flash("Reply posted!", "success")
     return redirect(url_for('help_detail', help_id=help_id))
+
+# ----------------------------------------
+# Blogs
+# ----------------------------------------
+@app.route('/blogs')
+@login_required
+def blogs():
+    all_blogs = Blog.query.order_by(Blog.date_posted.desc()).all()
+    return render_template('blogs.html', blogs=all_blogs)
+
+
+@app.route('/blog/<int:blog_id>')
+@login_required
+def blog_detail(blog_id):
+    blog = Blog.query.get_or_404(blog_id)
+    return render_template('blog_detail.html', blog=blog)
+
+
+@app.route('/create_blog', methods=['GET', 'POST'])
+@login_required
+def create_blog():
+    if request.method == 'POST':
+        title = request.form['title']
+        content = request.form['content']
+
+        if not title or not content:
+            flash('Title and content are required.', 'warning')
+            return redirect(url_for('create_blog'))
+
+        new_blog = Blog(title=title, content=content, author=current_user)
+        db.session.add(new_blog)
+        db.session.commit()
+        flash('📝 Blog published successfully!', 'success')
+        return redirect(url_for('blogs'))
+
+    return render_template('create_blog.html')
+
+
 
 
 # ----------------------------------------
