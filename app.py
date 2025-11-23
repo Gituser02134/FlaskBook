@@ -53,7 +53,8 @@ class User(UserMixin, db.Model):
     tasks = db.relationship('Task', backref='user', lazy=True)
     help_requests = db.relationship('HelpRequest', backref='user', lazy=True)
     replies = db.relationship('HelpReply', backref='user', lazy=True)
-    blogs = db.relationship('Blog', backref='author', lazy=True)  # ✅ Blog relationship
+    blogs = db.relationship('Blog', backref='author', lazy=True)
+    likes = db.relationship('Like', backref='user', lazy=True)  # ✅ Added Like relationship
 
 
 class Post(db.Model):
@@ -62,6 +63,8 @@ class Post(db.Model):
     file = db.Column(db.String(200))
     date_posted = db.Column(db.DateTime, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
+    likes = db.relationship('Like', backref='post', lazy=True)  # ✅ Add Like relationship
 
 
 class Task(db.Model):
@@ -93,13 +96,24 @@ class HelpReply(db.Model):
     request_id = db.Column(db.Integer, db.ForeignKey('help_request.id'), nullable=False)
 
 
-# ✅ Blog model must be declared OUTSIDE other models (same indentation level)
+# ✅ Blog model
 class Blog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
     content = db.Column(db.Text, nullable=False)
     date_posted = db.Column(db.DateTime, default=datetime.utcnow)
     author_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
+    likes = db.relationship('Like', backref='blog', lazy=True)  # ✅ Add Like relationship
+
+
+# ✅ Like model
+class Like(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    post_id = db.Column(db.Integer, db.ForeignKey('post.id'))
+    blog_id = db.Column(db.Integer, db.ForeignKey('blog.id'))
+
 
 
 @login_manager.user_loader
@@ -499,6 +513,47 @@ def profile(username):
     user_blogs = Blog.query.filter_by(author_id=user.id).order_by(Blog.date_posted.desc()).all()
     user_posts = Post.query.filter_by(user_id=user.id).order_by(Post.date_posted.desc()).all()
     return render_template('profile.html', user=user, blogs=user_blogs, posts=user_posts)
+
+
+# ----------------------------------------
+# Likes / Reactions
+# ----------------------------------------
+@app.route('/like_post/<int:post_id>', methods=['POST'])
+@login_required
+def like_post(post_id):
+    post = Post.query.get_or_404(post_id)
+    existing_like = Like.query.filter_by(user_id=current_user.id, post_id=post_id).first()
+
+    if existing_like:
+        db.session.delete(existing_like)
+        db.session.commit()
+        liked = False
+    else:
+        like = Like(user_id=current_user.id, post_id=post_id)
+        db.session.add(like)
+        db.session.commit()
+        liked = True
+
+    return {"liked": liked, "like_count": len(post.likes)}
+
+
+@app.route('/like_blog/<int:blog_id>', methods=['POST'])
+@login_required
+def like_blog(blog_id):
+    blog = Blog.query.get_or_404(blog_id)
+    existing_like = Like.query.filter_by(user_id=current_user.id, blog_id=blog_id).first()
+
+    if existing_like:
+        db.session.delete(existing_like)
+        db.session.commit()
+        liked = False
+    else:
+        like = Like(user_id=current_user.id, blog_id=blog_id)
+        db.session.add(like)
+        db.session.commit()
+        liked = True
+
+    return {"liked": liked, "like_count": len(blog.likes)}
 
 
 

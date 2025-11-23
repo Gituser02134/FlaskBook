@@ -5,6 +5,18 @@
     <h2>{{ blog.title }}</h2>
     <p class="text-muted small mb-4">by {{ blog.author.username }} on {{ blog.date_posted.strftime('%Y-%m-%d') }}</p>
     <p>{{ blog.content }}</p>
+    <hr>
+
+    <!-- ❤️ Like / Reaction Button -->
+    {% if current_user.is_authenticated %}
+    <form class="like-form d-inline" data-id="{{ blog.id }}" data-type="blog">
+      <button type="button" class="btn btn-sm like-btn {% if blog.id in liked_blog_ids %}btn-danger{% else %}btn-outline-danger{% endif %}">
+        <i class="bi bi-heart{% if blog.id in liked_blog_ids %}-fill{% endif %}"></i>
+        <span class="like-count">{{ blog.likes|length }}</span>
+      </button>
+    </form>
+    {% endif %}
+
   </div>
 </div>
 {% endblock %}

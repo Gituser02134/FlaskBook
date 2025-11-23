@@ -8,17 +8,30 @@
     {% endif %}
   </div>
 
-  {% for blog in blogs %}
-  <div class="card mb-3 shadow-sm">
-    <div class="card-body">
-      <h4><a href="{{ url_for('blog_detail', blog_id=blog.id) }}">{{ blog.title }}</a></h4>
-      <p class="text-muted small">by {{ blog.author.username }} on {{ blog.date_posted.strftime('%Y-%m-%d') }}</p>
-      <p>{{ blog.content[:200] }}{% if blog.content|length > 200 %}...{% endif %}</p>
-      <a href="{{ url_for('blog_detail', blog_id=blog.id) }}" class="btn btn-outline-primary btn-sm">Read More</a>
+  {% if blogs %}
+    {% for blog in blogs %}
+    <div class="card mb-3 shadow-sm">
+      <div class="card-body">
+        <h4><a href="{{ url_for('blog_detail', blog_id=blog.id) }}">{{ blog.title }}</a></h4>
+        <p class="text-muted small">by {{ blog.author.username }} on {{ blog.date_posted.strftime('%Y-%m-%d') }}</p>
+        <p>{{ blog.content[:200] }}{% if blog.content|length > 200 %}...{% endif %}</p>
+        <a href="{{ url_for('blog_detail', blog_id=blog.id) }}" class="btn btn-outline-primary btn-sm">Read More</a>
+
+        <!-- ❤️ Like / Reaction Button -->
+        {% if current_user.is_authenticated %}
+        <form class="like-form d-inline mt-2" data-id="{{ blog.id }}" data-type="blog">
+          <button type="button" class="btn btn-sm like-btn {% if blog.id in liked_blog_ids %}btn-danger{% else %}btn-outline-danger{% endif %}">
+            <i class="bi bi-heart{% if blog.id in liked_blog_ids %}-fill{% endif %}"></i>
+            <span class="like-count">{{ blog.likes|length }}</span>
+          </button>
+        </form>
+        {% endif %}
+
+      </div>
     </div>
-  </div>
+    {% endfor %}
   {% else %}
-  <p class="text-muted text-center mt-5">No blogs yet. Be the first to write one!</p>
-  {% endfor %}
+    <p class="text-muted text-center mt-5">No blogs yet. Be the first to write one!</p>
+  {% endif %}
 </div>
 {% endblock %}

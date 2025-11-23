@@ -85,6 +85,15 @@
                         <a href="{{ url_for('delete_post', post_id=post.id) }}" class="btn btn-sm btn-outline-danger">Delete</a>
                     </div>
                 {% endif %}
+
+                <!-- ❤️ Like / Reaction Button -->
+                <form class="like-form d-inline mt-2" data-id="{{ post.id }}" data-type="post">
+                    <button type="button" class="btn btn-sm like-btn {% if current_user.is_authenticated and post.id in liked_post_ids %}btn-danger{% else %}btn-outline-danger{% endif %}">
+                        <i class="bi bi-heart{% if current_user.is_authenticated and post.id in liked_post_ids %}-fill{% endif %}"></i>
+                        <span class="like-count">{{ post.likes|length }}</span>
+                    </button>
+                </form>
+
             </div>
         </div>
         {% endfor %}
@@ -123,5 +132,6 @@
     {% endif %}
 </div>
 {% endblock %}
+
 
 
