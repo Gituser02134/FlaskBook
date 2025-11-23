@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4" style="max-width: 500px;">
+  <div class="card shadow-sm p-4 border-0">
+    <h3 class="mb-3 text-center">Edit Your Profile</h3>
+
+    <form method="POST" enctype="multipart/form-data">
+      <div class="mb-3 text-center">
+        <img src="{{ url_for('static', filename=user.profile_pic) }}"
+             class="rounded-circle mb-3"
+             width="120" height="120" alt="Profile Picture">
+        <input type="file" name="profile_pic" class="form-control form-control-sm">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Bio:</label>
+        <textarea name="bio" rows="3" class="form-control form-control-sm">{{ user.bio }}</textarea>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-sm w-100">Save Changes</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

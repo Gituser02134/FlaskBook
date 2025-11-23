@@ -46,6 +46,8 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
+    profile_pic = db.Column(db.String(200), default='default.png')
+    bio = db.Column(db.Text, default='No bio yet.')
 
     posts = db.relationship('Post', backref='author', lazy=True)
     tasks = db.relationship('Task', backref='user', lazy=True)
@@ -490,6 +492,13 @@ def create_blog():
 
     return render_template('create_blog.html')
 
+@app.route('/profile/<username>')
+@login_required
+def profile(username):
+    user = User.query.filter_by(username=username).first_or_404()
+    user_blogs = Blog.query.filter_by(author_id=user.id).order_by(Blog.date_posted.desc()).all()
+    user_posts = Post.query.filter_by(user_id=user.id).order_by(Post.date_posted.desc()).all()
+    return render_template('profile.html', user=user, blogs=user_blogs, posts=user_posts)
 
 
 
@@ -513,6 +522,30 @@ def dashboard():
                            total_tasks=total_tasks,
                            completed_tasks=completed_tasks,
                            pending_tasks=pending_tasks)
+
+# ----------------------------------------
+# Edit Profile
+# ----------------------------------------
+@app.route('/edit_profile', methods=['GET', 'POST'])
+@login_required
+def edit_profile():
+    if request.method == 'POST':
+        bio = request.form.get('bio', '').strip()
+        file = request.files.get('profile_pic')
+
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(filepath)
+            current_user.profile_pic = f'uploads/{filename}'
+
+        current_user.bio = bio
+        db.session.commit()
+        flash('✅ Profile updated successfully!', 'success')
+        return redirect(url_for('profile', username=current_user.username))
+
+    return render_template('edit_profile.html', user=current_user)
+
 
 
 # ----------------------------------------

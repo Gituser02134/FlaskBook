@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <div class="card shadow-sm mb-4">
+    <div class="card-body text-center">
+      <img src="{{ url_for('static', filename=user.profile_pic) }}"
+           class="rounded-circle mb-3" width="120" height="120" alt="Profile Picture">
+      <h3 class="fw-bold">{{ user.username }}</h3>
+      <p class="text-muted">{{ user.bio }}</p>
+      {% if user.id == current_user.id %}
+      <a href="{{ url_for('edit_profile') }}" class="btn btn-outline-primary btn-sm">Edit Profile</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <h4 class="fw-bold">📝 Blogs by {{ user.username }}</h4>
+  <div class="row row-cols-1 row-cols-md-2 g-3">
+    {% for blog in blogs %}
+      <div class="col">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title">{{ blog.title }}</h5>
+            <p class="text-muted small">{{ blog.date_posted.strftime('%b %d, %Y') }}</p>
+            <a href="{{ url_for('blog_detail', blog_id=blog.id) }}" class="btn btn-sm btn-primary">Read</a>
+          </div>
+        </div>
+      </div>
+    {% else %}
+      <p>No blogs yet.</p>
+    {% endfor %}
+  </div>
+
+  <h4 class="fw-bold mt-4">📢 Posts by {{ user.username }}</h4>
+  {% for post in posts %}
+    <div class="card mb-3 shadow-sm">
+      <div class="card-body">
+        <p>{{ post.content }}</p>
+        <p class="text-muted small">{{ post.date_posted.strftime('%b %d, %Y') }}</p>
+      </div>
+    </div>
+  {% else %}
+    <p>No posts yet.</p>
+  {% endfor %}
+</div>
+{% endblock %}
+
+

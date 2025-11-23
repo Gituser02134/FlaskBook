@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container mt-4" style="max-width: 600px;">
+  <div class="card shadow-sm p-4">
+    <h3 class="fw-bold mb-3 text-center">Edit Profile</h3>
+
+    <form method="POST" enctype="multipart/form-data">
+      <div class="text-center mb-3">
+        <img src="{{ url_for('static', filename=user.profile_pic) }}"
+             class="rounded-circle mb-2 shadow-sm"
+             width="120" height="120" alt="Profile Picture">
+      </div>
+
+      <div class="mb-3">
+        <label for="profile_pic" class="form-label fw-semibold">Profile Picture</label>
+        <input type="file" name="profile_pic" id="profile_pic"
+               class="form-control form-control-sm" accept="image/*">
+        <div class="form-text">Upload a JPG, PNG, or GIF image (optional).</div>
+      </div>
+
+      <div class="mb-3">
+        <label for="bio" class="form-label fw-semibold">Bio</label>
+        <textarea id="bio" name="bio" class="form-control form-control-sm"
+                  rows="4" placeholder="Write something about yourself...">{{ user.bio }}</textarea>
+      </div>
+
+      <div class="d-flex justify-content-between">
+        <a href="{{ url_for('profile', username=current_user.username) }}" class="btn btn-secondary btn-sm">
+          <i class="bi bi-arrow-left"></i> Cancel
+        </a>
+        <button type="submit" class="btn btn-primary btn-sm">
+          <i class="bi bi-save"></i> Save Changes
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
