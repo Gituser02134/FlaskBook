@@ -3,24 +3,36 @@
 
 <div class="container mt-5" style="max-width: 400px;">
   <div class="card shadow-sm p-4 border-0">
-    <h3 class="text-center mb-4">🧾 Create an Account</h3>
+    <h3 class="text-center mb-4">🔑 Login to FlaskBook</h3>
+
+    <!-- 🔔 Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
 
     <form method="POST">
+      <!-- 🧑 Username or Email -->
       <div class="mb-3">
-        <label for="username" class="form-label">Username:</label>
+        <label for="login_field" class="form-label">Username or Email:</label>
         <input
           type="text"
-          id="username"
-          name="username"
+          id="login_field"
+          name="login_field"
           class="form-control form-control-sm"
-          placeholder="Pick a unique username"
-          minlength="3"
-          maxlength="20"
+          placeholder="Enter your username or email"
           autocomplete="username"
-          required>
-        <small class="text-muted">3–20 characters, letters and numbers only.</small>
+          required
+          autofocus>
       </div>
 
+      <!-- 🔒 Password -->
       <div class="mb-3">
         <label for="password" class="form-label">Password:</label>
         <input
@@ -28,21 +40,19 @@
           id="password"
           name="password"
           class="form-control form-control-sm"
-          placeholder="Enter a secure password"
+          placeholder="Enter your password"
+          autocomplete="current-password"
           minlength="6"
-          maxlength="50"
-          autocomplete="new-password"
           required>
-        <small class="text-muted">At least 6 characters long.</small>
       </div>
 
-      <button type="submit" class="btn btn-success btn-sm w-100">Register</button>
+      <button type="submit" class="btn btn-primary btn-sm w-100 mt-2">Login</button>
     </form>
   </div>
 
   <p class="text-center mt-3 small">
-    Already have an account?
-    <a href="{{ url_for('login') }}">Login here</a>
+    Don’t have an account?
+    <a href="{{ url_for('register') }}">Register here</a>
   </p>
 </div>
 

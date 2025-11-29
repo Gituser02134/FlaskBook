@@ -45,6 +45,7 @@ def allowed_file(filename):
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
     profile_pic = db.Column(db.String(200), default='default.png')
     bio = db.Column(db.Text, default='No bio yet.')
@@ -167,20 +168,29 @@ def index():
 def register():
     if request.method == 'POST':
         username = request.form['username'].strip()
+        email = request.form['email'].strip().lower()
         password = request.form['password'].strip()
 
-        if not username or not password:
-            flash('Username and password are required!', 'danger')
+        # Validate input
+        if not username or not email or not password:
+            flash('All fields are required (username, email, and password).', 'danger')
             return redirect(url_for('register'))
 
+        # Check for duplicates
         if User.query.filter_by(username=username).first():
             flash('Username already exists.', 'warning')
             return redirect(url_for('register'))
+        if User.query.filter_by(email=email).first():
+            flash('Email already registered.', 'warning')
+            return redirect(url_for('register'))
 
+        # Hash password and save user
         hashed_pw = generate_password_hash(password)
-        db.session.add(User(username=username, password=hashed_pw))
+        new_user = User(username=username, email=email, password=hashed_pw)
+        db.session.add(new_user)
         db.session.commit()
-        flash('Account created! You can now log in.', 'success')
+
+        flash('✅ Account created successfully! You can now log in.', 'success')
         return redirect(url_for('login'))
 
     return render_template('register.html')
@@ -189,17 +199,20 @@ def register():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = request.form['username'].strip()
+        login_field = request.form['login_field'].strip().lower()  # 👈 matches the HTML name
         password = request.form['password'].strip()
 
-        user = User.query.filter_by(username=username).first()
+        # Try finding by email first, then username
+        user = User.query.filter(
+            (User.email == login_field) | (User.username == login_field)
+        ).first()
 
         if user and check_password_hash(user.password, password):
             login_user(user)
             flash(f'Welcome back, {user.username}!', 'success')
             return redirect(url_for('index'))
 
-        flash('Invalid username or password.', 'danger')
+        flash('Invalid username/email or password.', 'danger')
 
     return render_template('login.html')
 
@@ -209,6 +222,7 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('login'))
+
 
 # ----------------------------------------
 # Chat Route
